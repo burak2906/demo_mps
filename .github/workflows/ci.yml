@@ -32,27 +32,13 @@ jobs:
 
   # Jobul pentru Continuous Deployment (CD) pe Google Cloud
   deploy:
-    runs-on: ubuntu-latest  # Rulează pe un sistem Ubuntu
-    needs: test  # Acest job depinde de jobul 'test' și va rula doar dacă testele au trecut
-
+    needs: test  # Rulează doar dacă job-ul de test a trecut cu succes
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2  # Face checkout la codul repository-ului
-
-      # Setează Google Cloud CLI (gcloud)
-      - name: Set up Google Cloud CLI
+        uses: actions/checkout@v2
+      
+      - name: Deploy to staging
         run: |
-          curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-396.0.0-linux-x86_64.tar.gz | tar xz
-          ./google-cloud-sdk/install.sh
+          echo "Deploying application to staging environment"
 
-      - name: Authenticate to Google Cloud
-        run: |
-          echo "${{ secrets.GOOGLE_CLOUD_KEY }}" > $HOME/gcloud-key.json
-          gcloud auth activate-service-account --key-file=$HOME/gcloud-key.json
-          gcloud config set project ${{ secrets.GOOGLE_PROJECT_ID }}
-
-      - name: Deploy to Google App Engine
-        run: |
-          gcloud app deploy  # Deploy pe Google App Engine
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: $HOME/gcloud-key.json
